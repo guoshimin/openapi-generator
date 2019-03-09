@@ -92,12 +92,18 @@ instance ApproxEq TI.Day where
 {{#models}}
 {{#model}}
 {{^isEnum}}
+_{{classname}}_sizedGen :: Int -> Gen ({{classname}})
+_{{classname}}_sizedGen 0 = {{#isAlias}}{{classname}} <$> arbitrary{{/isAlias}}{{^isAlias}}{{^hasVars}}
+  pure {{/hasVars}}{{classname}}
+{{#hasVars}}  <$>{{/hasVars}} {{#vars}}{{#required}}arbitrary{{/required}}{{^required}}pure Nothing{{/required}} -- {{name}} :: {{^required}}Maybe {{/required}}{{dataType}}
+{{#hasMore}}  <*> {{/hasMore}}{{/vars}}{{/isAlias}}
+_{{classname}}_sizedGen n | n > 0 = {{#isAlias}}{{classname}} <$> arbitrary{{/isAlias}}{{^isAlias}}{{^hasVars}}
+  pure {{/hasVars}}{{classname}}
+{{#hasVars}}  <$>{{/hasVars}} {{#vars}}{{#required}}arbitrary{{/required}}{{^required}}{{#isModel}}liftM Just (_{{dataType}}_sizedGen (n `div` 2)){{/isModel}}{{^isModel}}arbitrary{{/isModel}}{{/required}} -- {{name}} :: {{^required}}Maybe {{/required}}{{dataType}}
+{{#hasMore}}  <*> {{/hasMore}}{{/vars}}{{/isAlias}}
 instance Arbitrary {{classname}} where
-  arbitrary =
-    {{#isAlias}}{{classname}} <$> arbitrary{{/isAlias}}{{^isAlias}}{{^hasVars}}
-    pure {{/hasVars}}{{classname}}
-    {{#hasVars}}  <$>{{/hasVars}} {{#vars}}arbitrary -- {{name}} :: {{^required}}Maybe {{/required}}{{dataType}}
-    {{#hasMore}}  <*> {{/hasMore}}{{/vars}}{{/isAlias}}
+  arbitrary = sized _{{classname}}_sizedGen
+
 {{/isEnum}}
 {{/model}}
 {{/models}}

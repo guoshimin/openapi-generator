@@ -202,7 +202,9 @@ public class HaskellHttpClientCodegen extends DefaultCodegen implements CodegenC
                         "Double",
                         "List",
                         "FilePath",
-                        "Text"
+                        "Text",
+                        "DateTime",
+                        "ByteArray"
                 )
         );
 
